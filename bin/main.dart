@@ -23,14 +23,26 @@ main(List<String> arguments) async {
         if (request.method == 'GET') {
           request.response.write(await coll.find().toList());
         } else if (request.method == 'POST') {
-          var content = utf8.decoder.bind(request);
-          print(content);
+          var content = await utf8.decoder.bind(request).join();
+          var document = json.decode(content);
+          await coll.save(document);
         } else if (request.method == 'PUT') {
-          request.response.write(await coll.find().toList());
+          var id = int.parse(request.uri.queryParameters['id']);
+          var content = await utf8.decoder.bind(request).join();
+          var document = json.decode(content);
+          var itemToReplace = await coll.findOne(where.eq('id', id));
         } else if (request.method == 'DELETE') {
-          request.response.write(await coll.find().toList());
+          var id = int.parse(request.uri.queryParameters['id']);
+          var itemToDelete = await coll.findOne(where.eq('id', id));
+          await coll.remove(itemToDelete);
         } else if (request.method == 'PATCH') {
-          request.response.write(await coll.find().toList());
+          var id = int.parse(request.uri.queryParameters['id']);
+          var content = await utf8.decoder.bind(request).join();
+          var document = json.decode(content);
+          var itemToPatch = await coll.findOne(where.eq('id', id));
+          await coll.update(itemToPatch, {
+            r'$set': document,
+          });
         }
         break;
       default:
@@ -41,7 +53,7 @@ main(List<String> arguments) async {
     await request.response.close();
   });
 
-  print('Server of port 8085 is listening');
+  print('Server listening at http://localhost:$port');
 
   /********************* QUERY IN COLLECTION *************************/
 
