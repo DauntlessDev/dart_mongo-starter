@@ -1,14 +1,47 @@
 import 'package:dart_mongo/dart_mongo.dart' as dart_mongo;
 import 'package:mongo_dart/mongo_dart.dart';
+import 'dart:io';
+import 'dart:convert';
 
 main(List<String> arguments) async {
   /********************* DATABASE SETUP *************************/
+  int port = 8085;
+  var server = await HttpServer.bind('localhost', port);
   var db = Db('mongodb://localhost/test');
   await db.open();
 
   print('Connected to Database');
 
   var coll = db.collection('people');
+
+  server.listen((HttpRequest request) async {
+    switch (request.uri.path) {
+      case '/':
+        request.response.write('Hello World!');
+        break;
+      case '/people':
+        if (request.method == 'GET') {
+          request.response.write(await coll.find().toList());
+        } else if (request.method == 'POST') {
+          var content = utf8.decoder.bind(request);
+          print(content);
+        } else if (request.method == 'PUT') {
+          request.response.write(await coll.find().toList());
+        } else if (request.method == 'DELETE') {
+          request.response.write(await coll.find().toList());
+        } else if (request.method == 'PATCH') {
+          request.response.write(await coll.find().toList());
+        }
+        break;
+      default:
+        request.response
+          ..statusCode = HttpStatus.notFound
+          ..write('Not Found');
+    }
+    await request.response.close();
+  });
+
+  print('Server of port 8085 is listening');
 
   /********************* QUERY IN COLLECTION *************************/
 
@@ -57,24 +90,24 @@ main(List<String> arguments) async {
 
   // print('Saved new person');
 
-  await coll.insertAll([
-    {
-      'id': 101,
-      'first_name': 'Brave',
-      'last_name': 'Leuterio',
-      'email': 'bleuterio@ft.com',
-      'gender': 'Male',
-      'ip_address': '63.90.69.20'
-    },
-    {
-      'id': 102,
-      'first_name': 'rom',
-      'last_name': 'Leuterio',
-      'email': 'romleuterio@ft.com',
-      'gender': 'Male',
-      'ip_address': '63.90.69.20'
-    }
-  ]);
+  // await coll.insertAll([
+  //   {
+  //     'id': 101,
+  //     'first_name': 'Brave',
+  //     'last_name': 'Leuterio',
+  //     'email': 'bleuterio@ft.com',
+  //     'gender': 'Male',
+  //     'ip_address': '63.90.69.20'
+  //   },
+  //   {
+  //     'id': 102,
+  //     'first_name': 'rom',
+  //     'last_name': 'Leuterio',
+  //     'email': 'romleuterio@ft.com',
+  //     'gender': 'Male',
+  //     'ip_address': '63.90.69.20'
+  //   }
+  // ]);
 
   /********************* UPDATE IN COLLECTION *************************/
 
@@ -95,11 +128,11 @@ main(List<String> arguments) async {
   // print('Removed Person');
 
   // Remove all
-  await coll.remove();
+  // await coll.remove();
 
   // print(await coll.findOne(where.eq('id', 101)));
 
   /********************* DATABASE CLOSEDOWN *************************/
 
-  await db.close();
+  // await db.close();
 }
