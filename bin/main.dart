@@ -57,6 +57,25 @@ main(List<String> arguments) async {
 
   // print('Saved new person');
 
+  await coll.insertAll([
+    {
+      'id': 101,
+      'first_name': 'Brave',
+      'last_name': 'Leuterio',
+      'email': 'bleuterio@ft.com',
+      'gender': 'Male',
+      'ip_address': '63.90.69.20'
+    },
+    {
+      'id': 102,
+      'first_name': 'rom',
+      'last_name': 'Leuterio',
+      'email': 'romleuterio@ft.com',
+      'gender': 'Male',
+      'ip_address': '63.90.69.20'
+    }
+  ]);
+
   /********************* UPDATE IN COLLECTION *************************/
 
   // await coll.update(await coll.findOne(where.eq('id', 101)), {
@@ -65,6 +84,8 @@ main(List<String> arguments) async {
   //   }
   // });
 
+  // coll.update(where.eq('name', 'Daniel Robinson'), modify.set('age', 31));
+
   // print('Updated person');
   // print(await coll.findOne(where.eq('id', 101)));
 
@@ -72,7 +93,10 @@ main(List<String> arguments) async {
 
   // await coll.remove(await coll.findOne(where.eq('id', 101)));
   // print('Removed Person');
-  
+
+  // Remove all
+  await coll.remove();
+
   // print(await coll.findOne(where.eq('id', 101)));
 
   /********************* DATABASE CLOSEDOWN *************************/
